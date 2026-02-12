@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Westeros House Sorting Quiz</title>
+  <style>
+    :root{
+      --bg:#0f1115; --card:#171a21; --muted:#9aa3b2; --text:#e9edf5; --accent:#7aa2ff;
+      --border:#2a2f3a; --good:#70d6a6; --warn:#ffd479;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; background:linear-gradient(180deg, #0b0d12 0%, var(--bg) 35%, #0b0d12 100%);
+      color:var(--text); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      line-height:1.45;
+    }
+    header{padding:26px 16px 10px; text-align:center;}
+    h1{margin:0 0 6px; font-size:24px; letter-spacing:.2px;}
+    .sub{margin:0; color:var(--muted); font-size:14px;}
+    main{max-width:900px; margin:0 auto; padding:16px;}
+    .card{
+      background:rgba(23,26,33,.92);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      margin:14px 0;
+    }
+    .qhead{display:flex; gap:10px; align-items:flex-start; margin-bottom:10px;}
+    .qnum{
+      width:28px; height:28px; border-radius:8px;
+      display:grid; place-items:center;
+      background:rgba(122,162,255,.14);
+      border:1px solid rgba(122,162,255,.35);
+      color:var(--accent); font-weight:700; font-size:13px;
+      flex:0 0 auto;
+    }
+    .qtext{margin:0; font-weight:650;}
+    .choices{display:grid; gap:8px; margin-top:8px;}
+    label.choice{
+      display:flex; gap:10px; align-items:flex-start;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.02);
+      cursor:pointer;
+      transition:border-color .15s ease, background .15s ease;
+      user-select:none;
+    }
+    label.choice:hover{
+      border-color: rgba(122,162,255,.45);
+      background:rgba(122,162,255,.06);
+    }
+    input[type="radio"]{margin-top:3px;}
+    .letter{
+      width:22px; height:22px; border-radius:7px;
+      display:grid; place-items:center;
+      border:1px solid rgba(255,255,255,.14);
+      color:var(--muted); font-weight:700; font-size:12px;
+      background:rgba(255,255,255,.03);
+      flex:0 0 auto;
+    }
+    .footerbar{display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;}
+    .btn{
+      border:1px solid rgba(122,162,255,.55);
+      background:rgba(122,162,255,.16);
+      color:var(--text);
+      padding:10px 14px;
+      border-radius:12px;
+      font-weight:650;
+      cursor:pointer;
+    }
+    .btn:hover{background:rgba(122,162,255,.22);}
+    .btn.secondary{
+      border-color:rgba(255,255,255,.18);
+      background:rgba(255,255,255,.06);
+      color:var(--muted);
+    }
+    .btn.secondary:hover{background:rgba(255,255,255,.09); color:var(--text);}
+    .note{color:var(--muted); font-size:13px; margin:0;}
+    .warn{
+      display:none;
+      margin-top:10px;
+      border:1px solid rgba(255,212,121,.35);
+      background:rgba(255,212,121,.08);
+      border-radius:12px;
+      padding:10px 12px;
+      color:var(--warn);
+      font-size:13px;
+    }
+    .result{
+      display:none;
+      border:1px solid rgba(112,214,166,.35);
+      background:rgba(112,214,166,.08);
+      border-radius:14px;
+      padding:16px;
+      margin-top:12px;
+    }
+    .result h2{margin:0 0 6px; font-size:18px;}
+    .badgeRow{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;}
+    .badge{
+      display:inline-flex; gap:8px; align-items:center;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.03);
+      font-size:13px;
+      color:var(--muted);
+    }
+    .badge strong{color:var(--text)}
+    details{margin-top:10px;}
+    summary{cursor:pointer; color:var(--accent);}
+    .grid2{display:grid; gap:10px; grid-template-columns:1fr;}
+    @media (min-width:780px){ .grid2{grid-template-columns:1fr 1fr;} }
+    .miniCard{
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.02);
+      padding:12px;
+      border-radius:12px;
+    }
+    .miniCard h3{margin:0 0 6px; font-size:14px;}
+    .miniCard p{margin:0; color:var(--muted); font-size:13px;}
+    .small{font-size:12px; color:var(--muted);}
+    footer{padding:18px 16px 34px; text-align:center; color:var(--muted); font-size:12px;}
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Westeros House Sorting Quiz</h1>
+    <p class="sub">Tap answers (A–D). Your result updates automatically as you go.</p>
+  </header>
+
+  <main>
+    <form id="quiz" class="card" autocomplete="off">
+      <div class="footerbar" style="margin-bottom:10px;">
+        <p class="note">If you don’t see questions, you’re probably viewing in a “safe preview” that blocks scripts—open in Safari.</p>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <button class="btn secondary" type="button" id="resetBtn">Reset</button>
+          <button class="btn" type="button" id="scoreBtn">Get My House</button>
+        </div>
+      </div>
+
+      <!-- QUESTIONS (static HTML so they show even if JS is blocked) -->
+      <section class="card" style="margin:12px 0;">
+        <div class="qhead"><div class="qnum">1</div><p class="qtext">In a power struggle, your instinct is to:</p></div>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="q1" value="A"><span class="letter">A</span><span>Win through force and decisive action</span></label>
+          <label class="choice"><input type="radio" name="q1" value="B"><span class="letter">B</span><span>Win through alliances and leverage</span></label>
+          <label class="choice"><input type="radio" name="q1" value="C"><span class="letter">C</span><span>Win through patience and long-term positioning</span></label>
+          <label class="choice"><input type="radio" name="q1" value="D"><span class="letter">D</span><span>Avoid open conflict and strengthen internally</span></label>
+        </div>
+      </section>
+
+      <section class="card" style="margin:12px 0;">
+        <div class="qhead"><div class="qnum">2</div><p class="qtext">What matters most to you?</p></div>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="q2" value="A"><span class="letter">A</span><span>Legacy</span></label>
+          <label class="choice"><input type="radio" name="q2" value="B"><span class="letter">B</span><span>Honor</span></label>
+          <label class="choice"><input type="radio" name="q2" value="C"><span class="letter">C</span><span>Power</span></label>
+          <label class="choice"><input type="radio" name="q2" value="D"><span class="letter">D</span><span>Stability</span></label>
+        </div>
+      </section>
+
+      <section class="card" style="margin:12px 0;">
+        <div class="qhead"><div class="qnum">3</div><p class="qtext">Your leadership style:</p></div>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="q3" value="A"><span class="letter">A</span><span>Commanding and intense</span></label>
+          <label class="choice"><input type="radio" name="q3" value="B"><span class="letter">B</span><span>Calculated and strategic</span></label>
+          <label class="choice"><input type="radio" name="q3" value="C"><span class="letter">C</span><span>Inspirational and principled</span></label>
+          <label class="choice"><input type="radio" name="q3" value="D"><span class="letter">D</span><span>Protective and loyal</span></label>
+        </div>
+      </section>
+
+      <section class="card" style="margin:12px 0;">
+        <div class="qhead"><div class="qnum">4</div><p class="qtext">You’re betrayed. Your response:</p></div>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="q4" value="A"><span class="letter">A</span><span>Immediate retaliation</span></label>
+          <label class="choice"><input type="radio" name="q4" value="B"><span class="letter">B</span><span>Quiet revenge at the perfect time</span></label>
+          <label class="choice"><input type="radio" name="q4" value="C"><span class="letter">C</span><span>Public justice</span></label>
+          <label class="choice"><input type="radio" name="q4" value="D"><span class="letter">D</span><span>Cut them off and fortify your circle</span></label>
+        </div>
+      </section>
+
+      <section class="card" style="margin:12px 0;">
+        <div class="qhead"><div class="qnum">5</div><p class="qtext">Pick a domain to rule:</p></div>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="q5" value="A"><span class="letter">A</span><span>A cold, rugged frontier</span></label>
+          <label class="choice"><input type="radio" name="q5" value="B"><span class="letter">B</span><span>A wealthy trade capital</span></label>
+          <label class="choice"><input type="radio" name="q5" value="C"><span class="letter">C</span><span>A fertile, thriving kingdom</span></label>
+          <label class="choice"><input type="radio" name="q5" value="D"><span class="letter">D</span><span>A storm-battered coastal stronghold</span></label>
+        </div>
+      </section>
+
+      <section class="card" style="margin:12px 0;">
+        <div class="qhead"><div class="qnum">6</div><p class="qtext">Which phrase resonates most?</p></div>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="q6" value="A"><span class="letter">A</span><span>“Strength above all.”</span></label>
+          <label class="choice"><input type="radio" name="q6" value="B"><span class="letter">B</span><span>“Family above all.”</span></label>
+          <label class="choice"><input type="radio" name="q6" value="C"><span class="letter">C</span><span>“Honor above all.”</span></label>
+          <label class="choice"><input type="radio" name="q6" value="D"><span class="letter">D</span><span>“Fire changes everything.”</span></label>
+        </div>
+      </section>
+
+      <section class="card" style="margin:12px 0;">
+        <div class="qhead"><div class="qnum">7</div><p class="qtext">Your biggest flaw:</p></div>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="q7" value="A"><span class="letter">A</span><span>Pride</span></label>
+          <label class="choice"><input type="radio" name="q7" value="B"><span class="letter">B</span><span>Ruthlessness</span></label>
+          <label class="choice"><input type="radio" name="q7" value="C"><span class="letter">C</span><span>Emotional attachment</span></label>
+          <label class="choice"><input type="radio" name="q7" value="D"><span class="letter">D</span><span>Impulsiveness</span></label>
+        </div>
+      </section>
+
+      <section class="card" style="margin:12px 0;">
+        <div class="qhead"><div class="qnum">8</div><p class="qtext">In war, you prefer:</p></div>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="q8" value="A"><span class="letter">A</span><span>Shock and aggression</span></label>
+          <label class="choice"><input type="radio" name="q8" value="B"><span class="letter">B</span><span>Naval dominance and mobility</span></label>
+          <label class="choice"><input type="radio" name="q8" value="C"><span class="letter">C</span><span>Defensive discipline</span></label>
+          <label class="choice"><input type="radio" name="q8" value="D"><span class="letter">D</span><span>Tactical maneuvering</span></label>
+        </div>
+      </section>
+
+      <section class="card" style="margin:12px 0;">
+        <div class="qhead"><div class="qnum">9</div><p class="qtext">If you had a sigil, it would symbolize:</p></div>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="q9" value="A"><span class="letter">A</span><span>Ferocity</span></label>
+          <label class="choice"><input type="radio" name="q9" value="B"><span class="letter">B</span><span>Resilience</span></label>
+          <label class="choice"><input type="radio" name="q9" value="C"><span class="letter">C</span><span>Wealth</span></label>
+          <label class="choice"><input type="radio" name="q9" value="D"><span class="letter">D</span><span>Fire / rebirth</span></label>
+        </div>
+      </section>
+
+      <section class="card" style="margin:12px 0;">
+        <div class="qhead"><div class="qnum">10</div><p class="qtext">People describe you as:</p></div>
+        <div class="choices">
+          <label class="choice"><input type="radio" name="q10" value="A"><span class="letter">A</span><span>Intense</span></label>
+          <label class="choice"><input type="radio" name="q10" value="B"><span class="letter">B</span><span>Strategic</span></label>
+          <label class="choice"><input type="radio" name="q10" value="C"><span class="letter">C</span><span>Loyal</span></label>
+          <label class="choice"><input type="radio" name="q10" value="D"><span class="letter">D</span><span>Driven</span></label>
+        </div>
+      </section>
+
+      <div class="warn" id="warnBox">You missed at least one question. Answer all 10 to get your house.</div>
+
+      <div class="result" id="resultBox" aria-live="polite">
+        <h2 id="resultTitle">Your House</h2>
+        <p id="resultDesc" class="note" style="margin:0;"></p>
+        <div class="badgeRow" id="badgeRow"></div>
+
+        <details>
+          <summary>Show full scoring breakdown</summary>
+          <div class="grid2" style="margin-top:10px;">
+            <div class="miniCard"><h3>A — Power</h3><p>Direct outcomes, force, decisive action.</p><p class="small" id="scoreA"></p></div>
+            <div class="miniCard"><h3>B — Strategy</h3><p>Leverage, positioning, long games.</p><p class="small" id="scoreB"></p></div>
+            <div class="miniCard"><h3>C — Honor</h3><p>Principle, loyalty, earned respect.</p><p class="small" id="scoreC"></p></div>
+            <div class="miniCard"><h3>D — Legacy</h3><p>Transformation, destiny, bigger-than-now thinking.</p><p class="small" id="scoreD"></p></div>
+          </div>
+        </details>
+
+        <p class="small" style="margin-top:12px;">Result updates live as you tap answers (and also when you press “Get My House”).</p>
+      </div>
+    </form>
+
+    <div class="card">
+      <h2 style="margin:0 0 6px; font-size:18px;">House Buckets</h2>
+      <p class="note" style="margin:0 0 8px;">Mostly…</p>
+      <div class="grid2">
+        <div class="miniCard"><h3>A → Power Houses</h3><p><strong>Baratheon</strong>, <strong>Greyjoy</strong>, <strong>Bolton</strong></p></div>
+        <div class="miniCard"><h3>B → Strategic Houses</h3><p><strong>Lannister</strong>, <strong>Tyrell</strong>, <strong>Frey</strong></p></div>
+        <div class="miniCard"><h3>C → Honor Houses</h3><p><strong>Stark</strong>, <strong>Arryn</strong>, <strong>Tully</strong></p></div>
+        <div class="miniCard"><h3>D → Legacy Houses</h3><p><strong>Targaryen</strong>, <strong>Martell</strong>, <strong>Velaryon</strong></p></div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    If your viewer blocks scripts, the quiz can’t “sort” you. Use the Share icon → <strong>Open in Safari</strong>.
+  </footer>
+
+  <script>
+    const BUCKETS = {
+      A: { name:"Power Alignment", houses:["Baratheon","Greyjoy","Bolton"],
+           desc:"You prioritize decisive outcomes, dominance, and direct action. You’re comfortable taking control when the moment demands it." },
+      B: { name:"Strategic Alignment", houses:["Lannister","Tyrell","Frey"],
+           desc:"You play the board, not the pieces. You prefer leverage, planning, and positioning over raw force." },
+      C: { name:"Honor Alignment", houses:["Stark","Arryn","Tully"],
+           desc:"You value principle, loyalty, and earned respect. You’d rather be right than simply win." },
+      D: { name:"Legacy Alignment", houses:["Targaryen","Martell","Velaryon"],
+           desc:"You think beyond the present. You’re drawn to transformation, destiny, and big swings that reshape the world." },
+    };
+
+    function getScores() {
+      const scores = {A:0,B:0,C:0,D:0};
+      let answered = 0;
+      for (let i=1;i<=10;i++){
+        const picked = document.querySelector(`input[name="q${i}"]:checked`);
+        if (!picked) continue;
+        answered++;
+        scores[picked.value] += 1;
+      }
+      return {scores, answered};
+    }
+
+    function topTwoLetters(scores){
+      const entries = Object.entries(scores).sort((a,b)=> b[1]-a[1]); // desc
+      const top = entries[0][1];
+      const tiedTop = entries.filter(e=>e[1]===top).map(e=>e[0]);
+
+      // deterministic tie-break (change if you want)
+      const pref = ["C","B","D","A"];
+      const primary = tiedTop.sort((x,y)=> pref.indexOf(x)-pref.indexOf(y))[0];
+
+      const remaining = entries.filter(e=>e[0]!==primary);
+      const second = Math.max(...remaining.map(e=>e[1]));
+      const tiedSecond = remaining.filter(e=>e[1]===second).map(e=>e[0]);
+      const secondary = tiedSecond.sort((x,y)=> pref.indexOf(x)-pref.indexOf(y))[0];
+
+      return {primary, secondary};
+    }
+
+    function renderResult(showWarningIfIncomplete=true){
+      const warn = document.getElementById("warnBox");
+      const resultBox = document.getElementById("resultBox");
+      const {scores, answered} = getScores();
+
+      if (answered !== 10){
+        resultBox.style.display = "none";
+        warn.style.display = showWarningIfIncomplete ? "block" : "none";
+        return;
+      }
+      warn.style.display = "none";
+
+      const {primary, secondary} = topTwoLetters(scores);
+      const p = BUCKETS[primary];
+      const s = BUCKETS[secondary];
+
+      document.getElementById("resultTitle").textContent = `Primary: ${p.name} (${primary}) • Secondary: ${s.name} (${secondary})`;
+      document.getElementById("resultDesc").textContent = p.desc;
+
+      const badgeRow = document.getElementById("badgeRow");
+      badgeRow.innerHTML = "";
+      const mkBadge = (label, houses) => {
+        const el = document.createElement("div");
+        el.className = "badge";
+        el.innerHTML = `<strong>${label}:</strong> ${houses.join(", ")}`;
+        return el;
+      };
+      badgeRow.appendChild(mkBadge("Primary house options", p.houses));
+      badgeRow.appendChild(mkBadge("Secondary house options", s.houses));
+
+      document.getElementById("scoreA").textContent = `Score: ${scores.A}/10`;
+      document.getElementById("scoreB").textContent = `Score: ${scores.B}/10`;
+      document.getElementById("scoreC").textContent = `Score: ${scores.C}/10`;
+      document.getElementById("scoreD").textContent = `Score: ${scores.D}/10`;
+
+      resultBox.style.display = "block";
+    }
+
+    function resetQuiz(){
+      document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+      document.getElementById("warnBox").style.display = "none";
+      document.getElementById("resultBox").style.display = "none";
+      window.scrollTo({top:0, behavior:"smooth"});
+    }
+
+    // Live update as user taps answers
+    document.addEventListener("change", (e) => {
+      if (e.target && e.target.matches('input[type="radio"]')) {
+        renderResult(false);
+      }
+    });
+
+    document.getElementById("scoreBtn").addEventListener("click", () => renderResult(true));
+    document.getElementById("resetBtn").addEventListener("click", resetQuiz);
+  </script>
+</body>
+</html>
